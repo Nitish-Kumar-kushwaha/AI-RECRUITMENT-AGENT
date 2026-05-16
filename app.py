@@ -2,6 +2,11 @@ import streamlit as st
 
 from matching_agent import graph
 
+from tools import (
+    compare_candidates,
+    generate_interview_questions,
+    explain_ranking
+)
 
 st.set_page_config(
     page_title="AI Recruitment Agent",
@@ -10,17 +15,17 @@ st.set_page_config(
 
 st.title("🤖 AI Recruitment Agent")
 
-st.write(
-    "Find and rank candidates using AI"
-)
+st.write("Find and rank candidates using AI")
 
 query = st.text_input(
     "Enter Hiring Requirement"
 )
 
+result = None
+
 if st.button("Search Candidates"):
 
-    with st.spinner("Searching and ranking candidates..."):
+    with st.spinner("Searching candidates..."):
 
         result = graph.invoke({
 
@@ -33,29 +38,37 @@ if st.button("Search Candidates"):
 
         st.write(result["final_report"])
 
-from tools import (
-    compare_candidates,
-    generate_interview_questions,
-    explain_ranking
-)
+
+if result:
+
+    if st.button("Compare Top Candidates"):
+
+        comparison = compare_candidates(
+            result["ranked_candidates"]
+        )
+
+        st.subheader("📊 Candidate Comparison")
+
+        st.write(comparison)
 
 
-if st.button("Compare Top Candidates"):
+    if st.button("Generate Interview Questions"):
 
-    comparison = compare_candidates(
-        result["ranked_candidates"]
-    )
+        questions = generate_interview_questions(
+            result["ranked_candidates"]
+        )
 
-    st.subheader("📊 Candidate Comparison")
+        st.subheader("🎤 Interview Questions")
 
-    st.write(comparison)
+        st.write(questions)
 
-if st.button("Generate Interview Questions"):
 
-    questions = generate_interview_questions(
-        result["ranked_candidates"]
-    )
+    if st.button("Explain Candidate Rankings"):
 
-    st.subheader("🎤 Interview Questions")
+        explanation = explain_ranking(
+            result["ranked_candidates"]
+        )
 
-    st.write(questions)
+        st.subheader("🧠 Ranking Explanation")
+
+        st.write(explanation)
